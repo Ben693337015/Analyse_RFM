@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-config.py — Constantes globales centralisées.
-Source unique de vérité pour la palette, les polices et les métadonnées des personas.
-Aucun import tkinter ici — ce fichier est importable dans les services et tests.
+config.py — Source unique de vérité.
+Palette, polices, métadonnées personas, modèles IA, formats export.
+Aucun import tkinter — importable dans services et tests.
 """
 
 # ─────────────────────────────────────────────
@@ -37,12 +37,20 @@ FONT_MONO  = ("Consolas", 9)
 #  PERSONAS
 # ─────────────────────────────────────────────
 PERSONA_INFO = {
-    "Champions":          ("🏆", "#38e8a0", "Programmes VIP, produits exclusifs, ambassadeurs"),
-    "Clients Fidèles":    ("💎", "#4da6ff", "Programmes de fidélité, upselling, récompenses"),
-    "Clients Potentiels": ("🎯", "#f9c74f", "Offres personnalisées, campagnes de réactivation"),
-    "Clients Perdus":     ("🔄", "#ff5c7a", "Campagnes de reconquête, offres de retour"),
-    "Clients Récurrents": ("🔁", "#00d4ff", "Cross-selling, augmentation panier moyen"),
-    "Nouveaux Clients":   ("🆕", "#ff9f43", "Onboarding, offres de bienvenue, engagement"),
+    # Définitions RFM standardisées — cohérentes avec les critères de segmentation
+    # Champions    : R élevée + F élevée + M élevé  (meilleurs sur les 3 axes)
+    # Fidèles      : R bonne  + F élevée + M moyen–élevé  (acheteurs réguliers reconnus)
+    # Récurrents   : R moyenne + F moyenne + M moyen  (acheteurs habituels sans pic de valeur)
+    #                ≠ Fidèles : différence sur la Récence et le Montant, pas la Fréquence seule
+    # Potentiels   : R récente + F faible (1–2 achats) + M correct  (récents à fidéliser)
+    # Nouveaux     : R très récente + F = 1 + M faible–moyen  (1 seul achat, onboarding)
+    # Perdus       : R très ancienne + F quelconque  (inactifs longue durée)
+    "Champions":          ("🏆", "#38e8a0", "R↑ F↑ M↑ — VIP, ambassadeurs, accès exclusifs"),
+    "Clients Fidèles":    ("💎", "#4da6ff", "R↑ F↑ M↑ — Fidélité, upselling, reconnaissance"),
+    "Clients Récurrents": ("🔁", "#00d4ff", "R≈ F≈ M≈ — Abonnement, cross-sell, montée en valeur"),
+    "Clients Potentiels": ("🎯", "#f9c74f", "R↑ F faible M≈ — Cross-sell 2e/3e achat, découverte"),
+    "Nouveaux Clients":   ("🆕", "#ff9f43", "R↑↑ F=1 M≈ — Onboarding, déclenchement 2e achat"),
+    "Clients Perdus":     ("🔄", "#ff5c7a", "R↓↓ — Reconquête ciblée ou archivage"),
 }
 
 PERSONA_ROW_COLORS = {
@@ -67,28 +75,55 @@ PERSONA_RECO = {
             "📣 Programme ambassadeur : parrainage & co-création",
             "💬 Enquête satisfaction pour co-construire l'offre",
         ],
-        "kpi":  "Objectif : maintenir récence < 30 j, upsell +20 %",
-        "risk": "⚠️  Risque : départ silencieux — surveiller la récence",
+        # [FIX 3] Le vrai risque d'un Champion (R↑ F↑ M↑) n'est PAS le départ
+        # silencieux immédiat — sa récence actuelle est excellente par définition.
+        # Le risque réel est la sur-sollicitation (fatigue marketing) qui dégrade
+        # l'expérience. C'est dans "Clients Fidèles" (R qui remonte) que guette
+        # le départ silencieux.
+        "kpi":  "Objectif : maintenir récence < 30 j · upsell +20 % · NPS > 9",
+        "risk": "⚠️  Risque : sur-sollicitation & fatigue marketing — espacer les contacts, prioriser la qualité sur la quantité",
     },
     "Clients Fidèles": {
         "actions": [
             "💎 Carte de fidélité avec points doublés ce mois",
             "📈 Offres de montée en gamme (upselling ciblé)",
             "🎂 Email personnalisé anniversaire client + réduction",
-            "🔔 Alertes push sur les articles consultés sans achat",
+            "🔔 Alertes push personnalisées sur les nouvelles gammes",
         ],
-        "kpi":  "Objectif : fréquence +1 visite/mois, panier +15 %",
-        "risk": "⚠️  Risque : attrition si pas de reconnaissance",
+        # [FIX 2] Clients Fidèles = R bonne + F élevée + M moyen–élevé.
+        # Différence avec Récurrents : récence légèrement meilleure ET montant plus fort.
+        # Stratégie = montée en valeur (upsell), vs cross-sell pur pour les Récurrents.
+        # [FIX 3] Le "départ silencieux" guette ICI : récence qui remonte discrètement.
+        "kpi":  "Objectif : fréquence +1 visite/mois · panier +15 % · récence < 45 j",
+        "risk": "⚠️  Risque : départ silencieux — surveiller la récence (>45 j = signal d'alerte précoce vers Récurrents)",
+    },
+    "Clients Récurrents": {
+        "actions": [
+            "🔁 Abonnement ou livraison automatique récurrente",
+            "🛍️  Cross-selling : produits complémentaires à chaque achat",
+            "⭐ Programme de récompenses par paliers pour monter en Fidèle",
+            "📊 Dashboard client 'votre historique & économies réalisées'",
+        ],
+        # [FIX 2] Clients Récurrents = R moyenne + F moyenne + M moyen.
+        # Distinct des Fidèles par une récence moins fraîche et un montant moindre.
+        # Objectif : faire monter ces clients vers le segment Fidèles (F et M ↑).
+        "kpi":  "Objectif : panier moyen +10 % · LTV +25 % · migration vers Fidèles sur 6 mois",
+        "risk": "⚠️  Risque : stagnation si aucune nouveauté ni incentive à monter en valeur",
     },
     "Clients Potentiels": {
         "actions": [
-            "🎯 Offre personnalisée basée sur l'historique de navigation",
-            "📧 Séquence email 3 temps : intérêt → valeur → offre",
-            "🛒 Relance panier abandonné avec réduction 5 %",
-            "📞 Appel commercial si panier moyen > seuil VIP",
+            "🎯 Cross-selling : présenter des gammes complémentaires à leur 1er–2e achat",
+            "📧 Séquence email 3 temps : découverte → valeur → offre 2e/3e achat",
+            # [FIX 4] Suppression de la relance panier abandonné : donnée comportementale
+            # (Web Analytics) absente d'un fichier transactionnel RFM.
+            # Remplacée par des actions exploitables depuis l'historique d'achats.
+            "🎁 Offre de découverte gamme premium : -10 % sur une catégorie non encore achetée",
+            "📞 Appel commercial si montant moyen > seuil VIP",
         ],
-        "kpi":  "Objectif : convertir 30 % en Fidèles sur 90 j",
-        "risk": "⚠️  Risque : sur-sollicitation → désabonnement",
+        # [FIX 4] KPI ancré sur les données transactionnelles (fréquence, montant)
+        # et non sur des métriques comportementales non disponibles (panier abandonné).
+        "kpi":  "Objectif : déclencher 2e–3e achat · convertir 30 % en Récurrents sur 90 j",
+        "risk": "⚠️  Risque : sur-sollicitation → désabonnement si séquence trop agressive",
     },
     "Clients Perdus": {
         "actions": [
@@ -100,25 +135,21 @@ PERSONA_RECO = {
         "kpi":  "Objectif : réactiver 10–15 % dans les 60 jours",
         "risk": "⚠️  Risque : nuire à la réputation si trop insistant",
     },
-    "Clients Récurrents": {
-        "actions": [
-            "🔁 Abonnement ou livraison automatique récurrente",
-            "🛍️  Cross-selling : produits complémentaires à chaque achat",
-            "⭐ Programme de récompenses par paliers de fidélité",
-            "📊 Dashboard client 'votre historique & économies réalisées'",
-        ],
-        "kpi":  "Objectif : augmenter panier moyen +10 %, LTV +25 %",
-        "risk": "⚠️  Risque : stagnation si pas de nouveautés proposées",
-    },
     "Nouveaux Clients": {
         "actions": [
-            "🆕 Séquence d'onboarding (email J+1, J+3, J+7)",
+            "🆕 Séquence d'onboarding transactionnel (email J+1, J+3, J+7)",
             "🎓 Guide d'utilisation produit & FAQ interactive",
-            "🤝 Offre de bienvenue : -10 % sur le 2ème achat",
-            "📱 Invitation à télécharger l'appli + notification push",
+            # [FIX 1] L'offre -10% sur le 2e achat est correcte et intentionnelle :
+            # son succès doit se mesurer par la MIGRATION du client vers Clients Potentiels
+            # ou Récurrents (la fréquence passe de 1 à 2+). Cela est explicité dans le KPI.
+            "🤝 Offre de bienvenue : -10 % sur le 2e achat pour déclencher la récurrence",
+            "📱 Invitation à s'abonner à la newsletter + notification push",
         ],
-        "kpi":  "Objectif : 2ème achat dans les 30 j, NPS > 8",
-        "risk": "⚠️  Risque : churn après 1er achat si mauvaise expérience",
+        # [FIX 1] KPI reformulé : le succès = migration hors du segment.
+        # Un Nouveau Client qui réalise son 2e achat sort du segment par définition
+        # (fréquence passe à 2 → Potentiel ou Récurrent). C'est le but recherché.
+        "kpi":  "Objectif : déclencher le 2e achat dans les 30 j · succès = migration vers Clients Potentiels/Récurrents",
+        "risk": "⚠️  Risque : churn après 1er achat si mauvaise expérience produit ou silence post-achat",
     },
 }
 
@@ -145,7 +176,7 @@ EMAIL_EXPORT_FORMATS = [
 ]
 
 # ─────────────────────────────────────────────
-#  SECTIONS RAPPORT PDF  (key, label, default, ~pages)
+#  SECTIONS RAPPORT PDF
 # ─────────────────────────────────────────────
 PDF_SECTIONS = [
     ("cover",           "Page de garde",             True,  1),
@@ -159,3 +190,6 @@ PDF_SECTIONS = [
     ("top20",           "Top 20 clients",             True,  1),
     ("tableau",         "Extrait tableau complet",    True,  2),
 ]
+
+# ── DEVISE (modifié dynamiquement par le détecteur) ──────────────────────────
+CURRENCY_SYMBOL = "€"   # valeur par défaut, écrasée à la détection

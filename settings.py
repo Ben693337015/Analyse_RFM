@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-settings.py — Persistance sécurisée des préférences utilisateur.
-Les clés API sont stockées dans le trousseau OS via keyring.
-Les préférences non sensibles sont sauvegardées dans un fichier JSON.
+settings.py — Gestionnaire de configuration locale et sécurité.
+Clés API dans le trousseau OS (keyring), préférences dans JSON.
 """
 
 import json
@@ -15,12 +14,10 @@ try:
 except ImportError:
     _KEYRING_OK = False
 
-# ── Chemins ───────────────────────────────────────────────────────────────────
-_APP_DIR   = Path.home() / ".rfm_analytics"
-_PREFS_FILE = _APP_DIR / "preferences.json"
-_KEYRING_SERVICE = "rfm_analytics"
+_APP_DIR        = Path.home() / ".rfm_analytics"
+_PREFS_FILE     = _APP_DIR / "preferences.json"
+_KEYRING_SVC    = "rfm_analytics"
 
-# ── Préférences par défaut ────────────────────────────────────────────────────
 _DEFAULTS = {
     "ai_provider":     "Anthropic Claude",
     "pdf_company":     "Mon Entreprise",
@@ -58,26 +55,18 @@ def _save_prefs(prefs: dict) -> None:
 # ── API publique ──────────────────────────────────────────────────────────────
 
 def get(key: str, default=None):
-    """Retourne une préférence non sensible."""
     return _load_prefs().get(key, default if default is not None else _DEFAULTS.get(key))
 
 
 def set(key: str, value) -> None:
-    """Enregistre une préférence non sensible."""
     prefs = _load_prefs()
     prefs[key] = value
     _save_prefs(prefs)
 
 
 def get_api_key(provider: str) -> str:
-    """
-    Retourne la clé API pour le fournisseur indiqué.
-    Utilise keyring si disponible, sinon un fichier chiffré basique.
-    provider: 'claude' | 'gemini'
-    """
     if _KEYRING_OK:
-        return keyring.get_password(_KEYRING_SERVICE, provider) or ""
-    # Fallback : fichier local (moins sécurisé, mais fonctionnel sans keyring)
+        return keyring.get_password(_KEYRING_SVC, provider) or ""
     key_file = _APP_DIR / f".{provider}_key"
     if key_file.exists():
         try:
@@ -88,17 +77,12 @@ def get_api_key(provider: str) -> str:
 
 
 def set_api_key(provider: str, key: str) -> None:
-    """
-    Stocke la clé API pour le fournisseur indiqué.
-    provider: 'claude' | 'gemini'
-    """
     if _KEYRING_OK:
-        keyring.set_password(_KEYRING_SERVICE, provider, key)
+        keyring.set_password(_KEYRING_SVC, provider, key)
     else:
         _ensure_dir()
         key_file = _APP_DIR / f".{provider}_key"
         key_file.write_text(key, encoding="utf-8")
-        # Permissions restrictives sur Unix
         try:
             os.chmod(key_file, 0o600)
         except Exception:
@@ -106,22 +90,18 @@ def set_api_key(provider: str, key: str) -> None:
 
 
 def delete_api_key(provider: str) -> None:
-    """Supprime la clé API stockée."""
     if _KEYRING_OK:
         try:
-            keyring.delete_password(_KEYRING_SERVICE, provider)
+            keyring.delete_password(_KEYRING_SVC, provider)
         except Exception:
             pass
     else:
-        key_file = _APP_DIR / f".{provider}_key"
-        key_file.unlink(missing_ok=True)
+        (_APP_DIR / f".{provider}_key").unlink(missing_ok=True)
 
 
 def all_prefs() -> dict:
-    """Retourne toutes les préférences (lecture seule)."""
     return _load_prefs()
 
 
 def reset() -> None:
-    """Remet toutes les préférences aux valeurs par défaut."""
     _save_prefs(dict(_DEFAULTS))
