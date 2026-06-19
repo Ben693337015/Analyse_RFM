@@ -23,6 +23,12 @@ os.chdir(_ROOT)
 
 
 def main() -> None:
+    # [I18N] Charger la langue depuis les préférences avant toute fenêtre.
+    # Permet à login_view, main_window, etc. d'utiliser i18n._() dès leur
+    # premier import sans avoir à connaître settings.py individuellement.
+    from i18n import init_from_preferences
+    init_from_preferences()
+
     while True:
         # ── Étape 1 : Authentification ──
         from views.login_view import LoginWindow

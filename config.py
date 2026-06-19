@@ -192,4 +192,4 @@ PDF_SECTIONS = [
 ]
 
 # ── DEVISE (modifié dynamiquement par le détecteur) ──────────────────────────
-CURRENCY_SYMBOL = "€"   # valeur par défaut, écrasée à la détection
+CURRENCY_SYMBOL = "FCFA"   # valeur par défaut — Franc CFA, écrasée à la détection

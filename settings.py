@@ -19,12 +19,19 @@ _PREFS_FILE     = _APP_DIR / "preferences.json"
 _KEYRING_SVC    = "rfm_analytics"
 
 _DEFAULTS = {
+    "language":        "fr",   # [I18N] code langue active — voir i18n.AVAILABLE_LANGUAGES
     "ai_provider":     "Anthropic Claude",
     "pdf_company":     "Mon Entreprise",
     "pdf_author":      "Équipe Marketing",
     "pdf_open_after":  True,
     "pdf_dark_theme":  True,
     "email_brand":     "VotreMarque",
+    "smtp_provider":   "Gmail",
+    "smtp_host":       "smtp.gmail.com",
+    "smtp_port":       587,
+    "smtp_tls":        True,
+    "smtp_user":       "",
+    "smtp_from_name":  "RFM Analytics",
     "last_directory":  str(Path.home()),
     "window_geometry": "1400x860",
 }
