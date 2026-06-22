@@ -6,22 +6,44 @@ Aucun import tkinter — importable dans services et tests.
 """
 
 # ─────────────────────────────────────────────
-#  PALETTE — Thème Bleu Pro
+#  PALETTE — Thème Pastel Bleu Marine / Slate
+#  Design clair, épuré, minimaliste.
+#  Noms de constantes conservés pour compatibilité,
+#  mais sémantique adaptée au thème clair :
+#    BG_DARK  = fond général (bleu ardoisé clair — Tailwind Slate-200)
+#    BG_PANEL = panneaux/en-têtes (bleu ardoisé très clair — Slate-100)
+#    BG_CARD  = cartes (blanc pur, "élevé")
+#    BG_INPUT = champs de saisie (bleu ardoisé clair)
 # ─────────────────────────────────────────────
-BG_DARK   = "#050d1a"
-BG_PANEL  = "#0a1628"
-BG_CARD   = "#0f2040"
-BG_INPUT  = "#112248"
-ACCENT    = "#4da6ff"
-ACCENT2   = "#00d4ff"
-ACCENT3   = "#38e8a0"
-TEXT_MAIN = "#e4eeff"
-TEXT_SUB  = "#6a8cba"
-SUCCESS   = "#38e8a0"
-WARNING   = "#f9c74f"
-DANGER    = "#ff5c7a"
-BTN_RUN   = "#1a6dff"
-BTN_HOVER = "#2d7dff"
+BG_DARK   = "#e2e8f0"   # fond général — Slate-200 (bleu ardoisé clair)
+BG_PANEL  = "#f1f5f9"   # panneaux, en-têtes — Slate-100 (plus clair que le fond)
+BG_CARD   = "#ffffff"   # cartes — blanc pur (contraste avec le fond Slate)
+BG_INPUT  = "#eef2f6"   # champs de saisie — bleu ardoisé très clair
+BG_HOVER  = "#cbd5e1"   # survol léger — Slate-300
+
+NAVY        = "#1c2e4a"  # bleu marine profond — texte fort, accents structurels
+NAVY_SOFT   = "#2f4870"  # bleu marine adouci — hover, variantes
+ACCENT      = "#3f6fb0"  # bleu marine moyen — boutons principaux
+ACCENT2     = "#7fa8e0"  # bleu pastel — accents secondaires
+ACCENT3     = "#a8c6f0"  # bleu pastel clair — surlignages doux
+SLATE       = "#64748b"  # bleu ardoisé (Tailwind Slate-500) — accents assortis au fond
+
+TEXT_MAIN = "#1c2e4a"   # texte principal — bleu marine
+TEXT_SUB  = "#5b6b82"   # texte secondaire — bleu ardoisé moyen
+
+SUCCESS   = "#5fb98c"   # vert pastel doux
+WARNING   = "#e0b35c"   # ambre pastel
+DANGER    = "#d97a8c"   # rose-rouge pastel doux
+
+BTN_RUN   = "#3f6fb0"
+BTN_HOVER = "#2f4870"
+
+# Couleurs de "halo" pour simuler des ombres douces (box-shadow) :
+# customtkinter ne supporte pas le box-shadow CSS ; on simule la profondeur
+# avec une bordure fine + une couleur de halo légèrement teintée derrière les cartes/boutons.
+SHADOW_SOFT  = "#b9c5d6"   # halo discret (cartes, inputs) — Slate ardoisé
+SHADOW_MED   = "#a3b2c7"   # halo moyen (boutons primaires)
+BORDER_SOFT  = "#d3dbe6"   # bordure douce générale — Slate clair, distinct du hover
 
 # ─────────────────────────────────────────────
 #  POLICES
@@ -45,21 +67,21 @@ PERSONA_INFO = {
     # Potentiels   : R récente + F faible (1–2 achats) + M correct  (récents à fidéliser)
     # Nouveaux     : R très récente + F = 1 + M faible–moyen  (1 seul achat, onboarding)
     # Perdus       : R très ancienne + F quelconque  (inactifs longue durée)
-    "Champions":          ("🏆", "#38e8a0", "R↑ F↑ M↑ — VIP, ambassadeurs, accès exclusifs"),
-    "Clients Fidèles":    ("💎", "#4da6ff", "R↑ F↑ M↑ — Fidélité, upselling, reconnaissance"),
-    "Clients Récurrents": ("🔁", "#00d4ff", "R≈ F≈ M≈ — Abonnement, cross-sell, montée en valeur"),
-    "Clients Potentiels": ("🎯", "#f9c74f", "R↑ F faible M≈ — Cross-sell 2e/3e achat, découverte"),
-    "Nouveaux Clients":   ("🆕", "#ff9f43", "R↑↑ F=1 M≈ — Onboarding, déclenchement 2e achat"),
-    "Clients Perdus":     ("🔄", "#ff5c7a", "R↓↓ — Reconquête ciblée ou archivage"),
+    "Champions":          ("🏆", "#5fb98c", "R↑ F↑ M↑ — VIP, ambassadeurs, accès exclusifs"),
+    "Clients Fidèles":    ("💎", "#3f6fb0", "R↑ F↑ M↑ — Fidélité, upselling, reconnaissance"),
+    "Clients Récurrents": ("🔁", "#7fa8e0", "R≈ F≈ M≈ — Abonnement, cross-sell, montée en valeur"),
+    "Clients Potentiels": ("🎯", "#e0b35c", "R↑ F faible M≈ — Cross-sell 2e/3e achat, découverte"),
+    "Nouveaux Clients":   ("🆕", "#e0935c", "R↑↑ F=1 M≈ — Onboarding, déclenchement 2e achat"),
+    "Clients Perdus":     ("🔄", "#d97a8c", "R↓↓ — Reconquête ciblée ou archivage"),
 }
 
 PERSONA_ROW_COLORS = {
-    "Champions":          "#0a2e1a",
-    "Clients Fidèles":    "#0a1a3d",
-    "Clients Potentiels": "#2e2800",
-    "Clients Perdus":     "#2e0a14",
-    "Clients Récurrents": "#082a38",
-    "Nouveaux Clients":   "#2e1800",
+    "Champions":          "#eaf7f0",
+    "Clients Fidèles":    "#eaf0fb",
+    "Clients Potentiels": "#fbf3e3",
+    "Clients Perdus":     "#fbeaee",
+    "Clients Récurrents": "#eef4fc",
+    "Nouveaux Clients":   "#fbeee3",
 }
 
 PERSONA_ORDER = [
